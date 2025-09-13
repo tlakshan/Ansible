@@ -1,0 +1,45 @@
+---
+- name: Install and Configure Apache Tomcat
+  hosts: tomcatservers
+  become: yes
+
+  tasks:
+    - name: Open port 8080/tcp in firewall
+      firewalld:
+        port: 8080/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    # Ensure Java is installed
+    - name: Ensure Java is installed
+      yum:
+        name: java-1.8.0-openjdk-devel
+        state: present
+
+    # Download Tomcat
+    - name: Download Apache Tomcat
+      get_url:
+        url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.90/bin/apache-tomcat-9.0.90.zip"
+        dest: /opt/apache-tomcat-9.0.90.zip
+        mode: '0644'
+
+    # Unzip Tomcat
+    - name: Extract Tomcat
+      unarchive:
+        src: /opt/apache-tomcat-9.0.90.zip
+        dest: /opt/
+        remote_src: yes
+
+    # Set permissions
+    - name: Set permissions on Tomcat bin directory
+      file:
+        path: /opt/apache-tomcat-9.0.90/bin
+        mode: '0755'
+        recurse: yes
+
+    # Start Tomcat
+    - name: Start Tomcat
+      command: ./startup.sh
+      args:
+        chdir: /opt/apache-tomcat-9.0.90/bin
