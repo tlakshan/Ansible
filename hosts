@@ -1,19 +1,27 @@
 [managers]
-node1 ansible_host=192.168.8.101 ansible_user=root
-node2 ansible_host=192.168.8.102 ansible_user=root
-node3 ansible_host=192.168.8.103 ansible_user=root
-node4 ansible_host=192.168.8.104 ansible_user=root
-node5 ansible_host=192.168.8.105 ansible_user=root
-node6 ansible_host=192.168.8.106 ansible_user=root
-node7 ansible_host=192.168.8.107 ansible_user=root
-node8 ansible_host=192.168.8.108 ansible_user=root
-node9 ansible_host=192.168.8.109 ansible_user=root
-node10 ansible_host=192.168.8.110 ansible_user=root
+server-01 ansible_host=192.168.8.101 ansible_user=root
+server-02 ansible_host=192.168.8.102 ansible_user=root
+server-03 ansible_host=192.168.8.103 ansible_user=root
+server-04 ansible_host=192.168.8.104 ansible_user=root
+server-05 ansible_host=192.168.8.105 ansible_user=root
+server-06 ansible_host=192.168.8.106 ansible_user=root
+server-07 ansible_host=192.168.8.107 ansible_user=root
+server-08 ansible_host=192.168.8.108 ansible_user=root
+server-09 ansible_host=192.168.8.109 ansible_user=root
+server-10 ansible_host=192.168.8.110 ansible_user=root
 
 [nginx_server]
-node1 ansible_host=192.168.8.101 ansible_user=root
+server-01 ansible_host=192.168.8.101 ansible_user=root
 
 [app_servers]
-node2 ansible_host=192.168.8.102 ansible_user=root
-node3 ansible_host=192.168.8.103 ansible_user=root
-node4 ansible_host=192.168.8.104 ansible_user=root
+server-02 ansible_host=192.168.8.102 ansible_user=root
+server-03 ansible_host=192.168.8.103 ansible_user=root
+server-04 ansible_host=192.168.8.104 ansible_user=root
+
+[tomcatservers]
+server-02 ansible_host=192.168.8.102 ansible_user=root
+
+[galera_nodes]
+server-05 ansible_host=192.168.8.105 ansible_user=root
+server-06 ansible_host=192.168.8.106 ansible_user=root
+server-07 ansible_host=192.168.8.107 ansible_user=root
