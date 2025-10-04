@@ -1,0 +1,59 @@
+---
+- name: Install MySQL Exporter
+  hosts: galera_nodes
+  become: yes
+  tasks:
+
+    - name: Create mysql_exporter user
+      user:
+        name: mysql_exporter
+        system: yes
+        shell: /sbin/nologin
+
+    - name: Download MySQL Exporter
+      get_url:
+        url: https://github.com/prometheus/mysqld_exporter/releases/download/v0.16.0/mysqld_exporter-0.16.0.linux-amd64.tar.gz
+        dest: /tmp/mysqld_exporter.tar.gz
+
+    - name: Extract MySQL Exporter
+      unarchive:
+        src: /tmp/mysqld_exporter.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Create symlink
+      file:
+        src: /opt/mysqld_exporter-0.16.0.linux-amd64/mysqld_exporter
+        dest: /usr/local/bin/mysqld_exporter
+        state: link
+
+    - name: Copy systemd unit file
+      copy:
+        dest: /etc/systemd/system/mysqld_exporter.service
+        content: |
+          [Unit]
+          Description=MySQL Exporter
+          After=network.target
+
+          [Service]
+          User=mysql_exporter
+          ExecStart=/usr/local/bin/mysqld_exporter \
+            --config.my-cnf=/etc/.mysqld_exporter.cnf
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Create MySQL exporter config
+      copy:
+        dest: /etc/.mysqld_exporter.cnf
+        content: |
+          [client]
+          user=exporter
+          password=Password@123
+
+    - name: Enable and start MySQL Exporter
+      systemd:
+        name: mysqld_exporter
+        enabled: yes
+        state: started

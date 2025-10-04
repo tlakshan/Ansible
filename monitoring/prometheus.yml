@@ -1,0 +1,52 @@
+---
+- name: Install Prometheus
+  hosts: nginx_server
+  become: yes
+  tasks:
+
+    - name: Create prometheus user
+      user:
+        name: prometheus
+        system: yes
+        shell: /sbin/nologin
+
+    - name: Download Prometheus tarball
+      get_url:
+        url: https://github.com/prometheus/prometheus/releases/download/v2.55.1/prometheus-2.55.1.linux-amd64.tar.gz
+        dest: /tmp/prometheus.tar.gz
+
+    - name: Extract Prometheus
+      unarchive:
+        src: /tmp/prometheus.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Create symlink
+      file:
+        src: /opt/prometheus-2.55.1.linux-amd64
+        dest: /opt/prometheus
+        state: link
+
+    - name: Copy systemd unit file
+      copy:
+        dest: /etc/systemd/system/prometheus.service
+        content: |
+          [Unit]
+          Description=Prometheus
+          After=network.target
+
+          [Service]
+          User=prometheus
+          ExecStart=/opt/prometheus/prometheus \
+            --config.file=/opt/prometheus/prometheus.yml \
+            --storage.tsdb.path=/opt/prometheus/data
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable and start Prometheus
+      systemd:
+        name: prometheus
+        enabled: yes
+        state: started

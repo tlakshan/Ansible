@@ -1,0 +1,50 @@
+---
+- name: Install Node Exporter
+  hosts: managers
+  become: yes
+  tasks:
+
+    - name: Create node_exporter user
+      user:
+        name: node_exporter
+        system: yes
+        shell: /sbin/nologin
+
+    - name: Download Node Exporter
+      get_url:
+        url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz
+        dest: /tmp/node_exporter.tar.gz
+
+    - name: Extract Node Exporter
+      unarchive:
+        src: /tmp/node_exporter.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Create symlink
+      file:
+        src: /opt/node_exporter-1.8.2.linux-amd64/node_exporter
+        dest: /usr/local/bin/node_exporter
+        state: link
+
+    - name: Copy systemd unit file
+      copy:
+        dest: /etc/systemd/system/node_exporter.service
+        content: |
+          [Unit]
+          Description=Node Exporter
+          After=network.target
+
+          [Service]
+          User=node_exporter
+          ExecStart=/usr/local/bin/node_exporter
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable and start Node Exporter
+      systemd:
+        name: node_exporter
+        enabled: yes
+        state: started
